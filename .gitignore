@@ -1,0 +1,6 @@
+.DS_Store
+c_src/*.o
+priv/*.so
+.eunit
+ebin/*.beam
+ebin/*.app
