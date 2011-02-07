@@ -1,82 +1,53 @@
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
-#include <magick/api.h>
+#include <stdlib.h>
+#include <wand/MagickWand.h>
 
 class egm
 {
 public:
     static void resize()
     {
-        ExceptionInfo
-        exception;
+        #define ThrowWandException(wand) \
+        { \
+        char \
+            *description; \
+        ExceptionType \
+            severity; \
+         \
+          description=MagickGetException(wand,&severity); \
+          (void) fprintf(stderr,"%s %s %u %s\n",GetMagickModule(),description); \
+          description=(char *) MagickRelinquishMemory(description); \
+          exit(-1); \
+        }
 
-        Image
-          *image,
-          *images,
-          *resize_image,
-          *thumbnails;
+          MagickBooleanType
+            status;
 
-        ImageInfo
-          *image_info;
+          MagickWand
+            *magick_wand;
 
-        /*
-          Initialize the image info structure and read the list of files
-          provided by the user as a image sequence
-        */
-        GetExceptionInfo(&exception);
-        image_info=CloneImageInfo((ImageInfo *) NULL);
-        images=NewImageList();
-        //for (i=1; i< argc-1; i++)
-        //  {
-            (void) strcpy(image_info->filename,"../priv/flyer-3.gif");
-            //printf("Reading %s ...", image_info->filename);
-            image=ReadImage(image_info,&exception);
-            //printf(" %lu frames\n", GetImageListLength(image));
-            if (exception.severity != UndefinedException)
-              CatchException(&exception);
-            if (image)
-              (void) AppendImageToList(&images,image);
-        //  }
-
-        //if (!images)
-        //  {
-        //    printf("Failed to read any images!\n");
-        //    exit(1);
-        //  }
-        /*
-          Create a thumbnail image sequence
-        */
-        thumbnails=NewImageList();
-        while ((image=RemoveFirstImageFromList(&images)) != (Image *) NULL)
-          {
-            resize_image=ResizeImage(image,106,80,LanczosFilter,1.0,&exception);
-            DestroyImage(image);
-            if (resize_image == (Image *) NULL)
-              {
-                CatchException(&exception);
-                continue;
-              }
-            (void) AppendImageToList(&thumbnails,resize_image);
-          }
-        /*
-          Write the thumbnail image sequence to file
-        */
-        if (thumbnails)
-          {
-            (void) strcpy(thumbnails->filename,"../priv/out.png");
-            //printf("Writing %s ... %lu frames\n", thumbnails->filename,
-            //       GetImageListLength(thumbnails));
-            WriteImage(image_info,thumbnails);
-          }
-
-        /*
-          Release resources
-        */
-        DestroyImageList(thumbnails);
-        DestroyImageInfo(image_info);
-        DestroyExceptionInfo(&exception);
+          /*
+            Read an image.
+          */
+          MagickWandGenesis();
+          magick_wand=NewMagickWand();
+          status=MagickReadImage(magick_wand,"../priv/fibula.jpg");
+          if (status == MagickFalse)
+            ThrowWandException(magick_wand);
+          /*
+            Turn the images into a thumbnail sequence.
+          */
+          MagickResetIterator(magick_wand);
+          while (MagickNextImage(magick_wand) != MagickFalse)
+            MagickResizeImage(magick_wand,106,80,LanczosFilter,1.0);
+          /*
+            Write the image then destroy it.
+          */
+          status=MagickWriteImages(magick_wand,"../priv/out2.png",MagickTrue);
+          if (status == MagickFalse)
+            ThrowWandException(magick_wand);
+          magick_wand=DestroyMagickWand(magick_wand);
+          MagickWandTerminus();
     }
 };
 
