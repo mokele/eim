@@ -1,5 +1,5 @@
 -module(egm).
--export([resize/0]).
+-export([resize/3]).
 -on_load(init/0).
 
 -ifdef(TEST).
@@ -9,7 +9,7 @@
 init() ->
     ok = erlang:load_nif("../priv/egm_nifs", 0).
 
-resize() ->
+resize(_Bin, _W, _H) ->
     exit(nif_library_not_loaded).
 
 
@@ -19,6 +19,7 @@ resize() ->
 -ifdef(TEST).
 
 resize_test() ->
-    69 = resize().
-
+    {ok, Binary} = file:read_file("../priv/board.png"),
+    ResizedBinary = resize(Binary, 200, 150),
+    ok = file:write_file("../priv/board_thumb.jpg", ResizedBinary).
 -endif.
