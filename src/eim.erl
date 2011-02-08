@@ -1,4 +1,4 @@
--module(egm).
+-module(eim).
 -export([resize/3]).
 -on_load(init/0).
 
@@ -7,7 +7,7 @@
 -endif.
 
 init() ->
-    ok = erlang:load_nif("../priv/egm_nifs", 0).
+    ok = erlang:load_nif("../priv/eim_nifs", 0).
 
 resize(_Bin, _W, _H) ->
     exit(nif_library_not_loaded).

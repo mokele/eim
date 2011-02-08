@@ -3,7 +3,7 @@
 #include <wand/MagickWand.h>
 #include "erl_nif_compat.h"
 
-class egm
+class eim
 {
 public:
     static unsigned char* resize(const void *blob, const size_t length, int width, int height, 

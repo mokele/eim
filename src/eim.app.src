@@ -1,4 +1,4 @@
-{application, egm,
+{application, eim,
  [
   {description, ""},
   {vsn, "1"},

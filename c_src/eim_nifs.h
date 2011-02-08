@@ -7,5 +7,5 @@ extern "C"
     static ErlNifFunc nif_funcs[] = {
         {"resize", 3, resize_nif}
     };
-    ERL_NIF_INIT(egm, nif_funcs, NULL, NULL, NULL, NULL);
+    ERL_NIF_INIT(eim, nif_funcs, NULL, NULL, NULL, NULL);
 }

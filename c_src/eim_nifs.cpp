@@ -1,5 +1,5 @@
-#include "egm_nifs.h"
-#include "egm.cpp"
+#include "eim_nifs.h"
+#include "eim.cpp"
 #include "erl_nif_compat.h"
 #include <string.h>
 
@@ -19,7 +19,7 @@ ERL_NIF_TERM resize_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         size_t new_length;
         unsigned char *new_blob;
 
-        new_blob = egm::resize(data.data, data.size, width, height, &new_length);
+        new_blob = eim::resize(data.data, data.size, width, height, &new_length);
         enif_alloc_binary_compat(env, new_length, &new_binary);
         memcpy(new_binary.data, new_blob, new_length);
         return enif_make_binary(env, &new_binary);
