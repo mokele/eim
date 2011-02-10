@@ -26,7 +26,7 @@ all_test_() ->
         {ok, Riak} = riakc_pb_socket:start_link("127.0.0.1", 8087),
         Bucket = <<"images">>,
         
-        Obj1 = riakc_obj:new(Bucket, <<"10.jpg">>, derive(Resource, {scale, 200, 200}), "image/jpg"),
+        Obj1 = riakc_obj:new(Bucket, <<"10.jpg">>, derive(Resource, [{scale, width, 300}]), "image/jpg"),
         ok = riakc_pb_socket:put(Riak, Obj1)
     end}.
 

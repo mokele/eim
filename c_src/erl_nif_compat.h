@@ -15,6 +15,8 @@ extern "C" {
 #define enif_alloc_binary_compat enif_alloc_binary
 #define enif_alloc_compat enif_alloc
 #define enif_free_compat enif_free
+#define enif_get_atom_compat(E, T, B, S, C) \
+    enif_get_atom(E, T, B, S)
 #endif /* R13B04 */
 
 #if ERL_NIF_MAJOR_VERSION == 2 && ERL_NIF_MINOR_VERSION == 0
@@ -36,6 +38,8 @@ extern "C" {
 
 #define enif_free_compat(E, P) \
     enif_free(P)
+
+#define enif_get_atom_compat enif_get_atom
 
 #endif /* R14 */
 

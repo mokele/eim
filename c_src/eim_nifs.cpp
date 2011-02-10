@@ -21,13 +21,55 @@ ERL_NIF_TERM load_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
     ihandle* handle;
-    if (enif_get_resource(env, argv[0], EIM_IMAGE_RESOURCE, (void**)&handle))
+    ERL_NIF_TERM head;
+    ERL_NIF_TERM tail;
+    if(enif_get_resource(env, argv[0], EIM_IMAGE_RESOURCE, (void**)&handle)
+    && enif_get_list_cell(env, argv[1], &head, &tail))
     {
         ErlNifBinary new_binary;
         size_t new_length;
         unsigned char *new_blob;
         
-        new_blob = handle->image->resize(200, 200, &new_length);
+        do {
+            //todo: error handle
+            int tuplec;
+            const ERL_NIF_TERM* tuple;
+            char type[9];
+            if(!enif_get_tuple(env, head, &tuplec, &tuple)
+            || !enif_get_atom_compat(env, tuple[0], type, 9, ERL_NIF_LATIN1))
+            {
+                return enif_make_badarg(env);
+            }
+            if(type[0]=='s')
+            {
+                int value;
+                char dimension[7];
+                if(!enif_get_atom_compat(env, tuple[1], dimension, 7, ERL_NIF_LATIN1)
+                || !enif_get_int(env, tuple[2], &value))
+                {
+                    return enif_make_badarg(env);
+                }
+                if(dimension[0]=='w')
+                {
+                    handle->image->scale_width(value);
+                }
+                else if(dimension[0]=='h')
+                {
+                    handle->image->scale_height(value);
+                }
+                else
+                {
+                    return enif_make_badarg(env);
+                }
+            }
+            else
+            {
+                return enif_make_badarg(env);
+            }
+            
+        } while(enif_get_list_cell(env, tail, &head, &tail));
+        
+        new_blob = handle->image->process(&new_length);
         enif_alloc_binary_compat(env, new_length, &new_binary);
         memcpy(new_binary.data, new_blob, new_length);
         return enif_make_binary(env, &new_binary);
