@@ -7,7 +7,7 @@ basic manipulation functionality.
 Due to the nature of NIFs if they crash the whole node goes down, which 
 means you'd need to monitor/handle said crashes.
 
-# the follow derivation options are available #
+# the following derivation options are available #
 
     {scale, width, Width}
     {scale, height, Height}

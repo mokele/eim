@@ -40,6 +40,8 @@ public:
         while (MagickNextImage(magick_wand) != MagickFalse) {
             MagickResizeImage(magick_wand,width,height,LanczosFilter,1.0);
         }
+        width_ = width;
+        height_ = height;
     }
     void scale_height(size_t height)
     {
@@ -49,6 +51,8 @@ public:
         while (MagickNextImage(magick_wand) != MagickFalse) {
             MagickResizeImage(magick_wand,width,height,LanczosFilter,1.0);
         }
+        width_ = width;
+        height_ = height;
     }
     
     void fit(size_t width, size_t height)
@@ -66,6 +70,8 @@ public:
             new_width = (size_t)(width_ * height_ratio);
             new_height = height;
         }
+        width_ = new_width;
+        height_ = new_height;
         
         MagickResetIterator(magick_wand);
         while (MagickNextImage(magick_wand) != MagickFalse) {
