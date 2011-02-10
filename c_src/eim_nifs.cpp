@@ -43,11 +43,11 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
             switch(type[0])
             {
                 case 's'://scale
-                    int value;
+                    long value;
                     char dimension[7];
                     // todo: do we need longs?
                     if(!enif_get_atom_compat(env, tuple[1], dimension, 7, ERL_NIF_LATIN1)
-                    || !enif_get_int(env, tuple[2], &value))
+                    || !enif_get_long(env, tuple[2], &value))
                     {
                         return enif_make_badarg(env);
                     }
@@ -65,9 +65,9 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
                     }
                     break;
                 case 'f'://fit
-                    int width, height;
+                    long width, height;
                     // todo: do we need longs?
-                    if(!enif_get_int(env, tuple[1], &width) || !enif_get_int(env, tuple[2], &height))
+                    if(!enif_get_long(env, tuple[1], &width) || !enif_get_long(env, tuple[2], &height))
                     {
                         return enif_make_badarg(env);
                     }

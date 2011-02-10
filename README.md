@@ -4,6 +4,17 @@ This is the initial goal of the eim project due to these being the primary
 functions needed for web based services that require image uploading and 
 basic manipulation functionality.
 
+Due to the nature of NIFs if they crash the whole node goes down, which 
+means you'd need to monitor/handle said crashes.
+
+# the follow derivation options are available #
+
+    {scale, width, Width}
+    {scale, height, Height}
+    {fit, Width, Height}
+    
+The rest are not yet implemented. ***This is a work in progress.***
+
 # Examples #
 A photo hosting service which primarily deals with photographs of people 
 may create these derivations of updates images:
@@ -32,7 +43,6 @@ the result of Facebook profile image thumbnail editing
     eim:derive(Image, [{crop, 45, 130, 300, 300}, {scale, height, 50}])
 
 # Derivation Reference #
-
 crop a region
 
     {crop, X, Y, Width, Height}
