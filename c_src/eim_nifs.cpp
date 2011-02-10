@@ -40,31 +40,41 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
             {
                 return enif_make_badarg(env);
             }
-            if(type[0]=='s')
+            switch(type[0])
             {
-                int value;
-                char dimension[7];
-                if(!enif_get_atom_compat(env, tuple[1], dimension, 7, ERL_NIF_LATIN1)
-                || !enif_get_int(env, tuple[2], &value))
-                {
+                case 's'://scale
+                    int value;
+                    char dimension[7];
+                    // todo: do we need longs?
+                    if(!enif_get_atom_compat(env, tuple[1], dimension, 7, ERL_NIF_LATIN1)
+                    || !enif_get_int(env, tuple[2], &value))
+                    {
+                        return enif_make_badarg(env);
+                    }
+                    if(dimension[0]=='w')
+                    {
+                        handle->image->scale_width(value);
+                    }
+                    else if(dimension[0]=='h')
+                    {
+                        handle->image->scale_height(value);
+                    }
+                    else
+                    {
+                        return enif_make_badarg(env);
+                    }
+                    break;
+                case 'f'://fit
+                    int width, height;
+                    // todo: do we need longs?
+                    if(!enif_get_int(env, tuple[1], &width) || !enif_get_int(env, tuple[2], &height))
+                    {
+                        return enif_make_badarg(env);
+                    }
+                    handle->image->fit(width, height);
+                    break;
+                default:
                     return enif_make_badarg(env);
-                }
-                if(dimension[0]=='w')
-                {
-                    handle->image->scale_width(value);
-                }
-                else if(dimension[0]=='h')
-                {
-                    handle->image->scale_height(value);
-                }
-                else
-                {
-                    return enif_make_badarg(env);
-                }
-            }
-            else
-            {
-                return enif_make_badarg(env);
             }
             
         } while(enif_get_list_cell(env, tail, &head, &tail));

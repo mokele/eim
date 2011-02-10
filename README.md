@@ -74,12 +74,7 @@ results in either
      NewWidth =:= Width and NewHeight =< Height
   or NewHeight =:= Height and NewWidth =< Width
 
-    {fit, Width, Height} -> {fit, Width, Height, center, center}
-    {fit, Width, Height, FloatX, FloatY}
-
-fit inside a 200x200 box and float the image in the center
-    
-    {box, 200, 200, center, center}
+    {fit, Width, Height}
     
 ?? maybe this ??
 define this Derivation as a distinct image result from the original

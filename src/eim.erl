@@ -12,7 +12,12 @@ init() ->
 load(_Bin) ->
     exit(nif_library_not_loaded).
 
-derive(_Image, _Deriv) ->
+derive(Image, Deriv) when is_tuple(Deriv)->
+    derive(Image, [Deriv]);
+derive(Image, Deriv) ->
+    do_derive(Image, Deriv).
+
+do_derive(_Image, _Deriv) ->
     exit(nif_library_not_loaded).
 
 %% ===================================================================
@@ -26,7 +31,7 @@ all_test_() ->
         {ok, Riak} = riakc_pb_socket:start_link("127.0.0.1", 8087),
         Bucket = <<"images">>,
         
-        Obj1 = riakc_obj:new(Bucket, <<"10.jpg">>, derive(Resource, [{scale, width, 300}]), "image/jpg"),
+        Obj1 = riakc_obj:new(Bucket, <<"10.jpg">>, derive(Resource, {fit, 100, 310}), "image/jpg"),
         ok = riakc_pb_socket:put(Riak, Obj1)
     end}.
 

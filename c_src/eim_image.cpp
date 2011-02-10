@@ -34,18 +34,42 @@ public:
     
     void scale_width(size_t width)
     {
+        size_t height = (size_t)round(height_ * ((double)width/width_));
+        
         MagickResetIterator(magick_wand);
         while (MagickNextImage(magick_wand) != MagickFalse) {
-            size_t height = (size_t)(height_ * ((double)width/width_));
             MagickResizeImage(magick_wand,width,height,LanczosFilter,1.0);
         }
     }
     void scale_height(size_t height)
     {
+        size_t width = (size_t)round(width_ * ((double)height/height_));
+        
         MagickResetIterator(magick_wand);
         while (MagickNextImage(magick_wand) != MagickFalse) {
-            size_t width = (size_t)(width_ * ((double)height/height_));
             MagickResizeImage(magick_wand,width,height,LanczosFilter,1.0);
+        }
+    }
+    
+    void fit(size_t width, size_t height)
+    {
+        double width_ratio = (double)width/width_;
+        double height_ratio = (double)height/height_;
+        size_t new_width, new_height;
+        if(width_ratio < height_ratio)
+        {
+            new_width = width;
+            new_height = (size_t)(height_ * width_ratio);
+        }
+        else
+        {
+            new_width = (size_t)(width_ * height_ratio);
+            new_height = height;
+        }
+        
+        MagickResetIterator(magick_wand);
+        while (MagickNextImage(magick_wand) != MagickFalse) {
+            MagickResizeImage(magick_wand,new_width,new_height,LanczosFilter,1.0);
         }
     }
     
