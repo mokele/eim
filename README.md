@@ -8,10 +8,9 @@ basic manipulation functionality.
 A photo hosting service which primarily deals with photographs of people 
 may create these derivations of updates images:
 
-    1> {ok, Image} = eim:read(Binary).
+    1> {ok, Image} = eim:load(Binary).
     2> %% make derivations here
        ...
-    N> eim:close(Image).
   
 Create a thumbnail of the top portion of the image and scale it to a 
 box of 50x50 pixels - similar to default Facebook newsfeed profile 
