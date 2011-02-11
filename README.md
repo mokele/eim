@@ -7,17 +7,9 @@ basic manipulation functionality.
 Due to the nature of NIFs if they crash the whole node goes down, which 
 means you'd need to monitor/handle said crashes.
 
-# the following derivation options are available #
-
-    {scale, width, Width}
-    {scale, height, Height}
-    {fit, Width, Height}
-    
-The rest are not yet implemented. ***This is a work in progress.***
-
 # Examples #
 A photo hosting service which primarily deals with photographs of people 
-may create these derivations of updates images:
+may create these derivations of uploaded images:
 
     1> {ok, Image} = eim:load(Binary).
     2> %% make derivations here
@@ -35,17 +27,17 @@ bottom out so that it is exactly 350 height. Will result in an image
 with width 180 and a height of =< 350 - similar to Facebook style 
 pictures on the left of profile pages
 
-    eim:derive(Image, [{scale, width, 180}, {crop_max, height, 350, top}])
+    eim:derive(Image, [{scale, width, 180}, {max, height, 350, top}])
    
 User defined cropping the image to a specific region - similar to 
 the result of Facebook profile image thumbnail editing
 
-    eim:derive(Image, [{crop, 45, 130, 300, 300}, {scale, height, 50}])
+    eim:derive(Image, [{crop, 300, 300, 45, 130}, {scale, height, 50}])
 
 # Derivation Reference #
 crop a region
 
-    {crop, X, Y, Width, Height}
+    {crop, Width, Height, X, Y}
     
 scale by width and maintain aspect ratio on height
 
@@ -57,18 +49,19 @@ scale by height and maintain aspect ratio on width
     
 crop the image if it exceeds these limits float crop center
 
-    {crop_max, width, Width} -> {crop_max, width, Width, center}
-    {crop_max, height, Height} -> {crop_max, height, Height, center}
+    {max, width, Width} -> {max, width, Width, left}
+    {max, height, Height} -> {max, height, Height, top}
 
 crop the image if it exceeds these limits and float the crop
+** variable floating on max not currently supported **
 
-    {crop_max, width, Width, FloatX}
-    {crop_max, height, Height, FloatY}
+    {max, width, Width, FloatX}
+    {max, height, Height, FloatY}
 
 crop to 350 if the original Height > 350 and float the crop in the top
 which is normally where someone's head is in a photograph
 
-      {crop_max, height, 350, top}
+    {max, height, 350, top}
     
 fit inside this box by cropping out some of the image so it results in  
 am image exactly Width, Height in dimensions
@@ -81,22 +74,9 @@ same as above but with variable FloatX and FloatY
     
 fit inside a box of this size but maintain the aspect ratio
 results in either
-     NewWidth =:= Width and NewHeight =< Height
-  or NewHeight =:= Height and NewWidth =< Width
 
+    % NewWidth =:= Width and NewHeight =< Height
+    % or NewHeight =:= Height and NewWidth =< Width
     {fit, Width, Height}
-    
-?? maybe this ??
-define this Derivation as a distinct image result from the original
-and make sure it's resource is returned along with any other defined 
-derivations. Allow creation of multiple images from one source.
-
-    {image, Derivation}
-
-rotate then box, then make this one image
-
-    {image, [{rotate, 90}, {box, 50, 50, center, top}]}
-
-
 
 

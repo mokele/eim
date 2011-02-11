@@ -1,6 +1,6 @@
 {application, eim,
  [
-  {description, ""},
+  {description, "Erlang ImageMagick Interface (for the web)"},
   {vsn, "1"},
   {registered, []},
   {applications, [
