@@ -30,8 +30,11 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     ihandle* handle;
     ERL_NIF_TERM head;
     ERL_NIF_TERM tail;
+    char fmt[4];
+    
     if(enif_get_resource(env, argv[0], EIM_IMAGE_RESOURCE, (void**)&handle)
-    && enif_get_list_cell(env, argv[1], &head, &tail))
+    && enif_get_atom_compat(env, argv[1], fmt, 4, ERL_NIF_LATIN1)
+    && enif_get_list_cell(env, argv[2], &head, &tail))
     {
         ErlNifBinary new_binary;
         size_t new_length;
@@ -156,7 +159,15 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         
         try
         {
-            new_blob = handle->image->process(&new_length);
+            EIM_FORMAT eim_format;
+            switch(fmt[0])
+            {
+                case 'j': eim_format = EIM_FORMAT_JPG; break;
+                case 'g': eim_format = EIM_FORMAT_GIF; break;
+                case 'p':
+                default: eim_format = EIM_FORMAT_PNG; break;
+            }
+            new_blob = handle->image->process(eim_format, &new_length);
             enif_alloc_binary_compat(env, new_length, &new_binary);
             memcpy(new_binary.data, new_blob, new_length);
             return enif_make_binary(env, &new_binary);

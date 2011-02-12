@@ -19,7 +19,7 @@ extern "C"
     
     static ErlNifFunc nif_funcs[] = {
         {"load", 1, load_nif},
-        {"do_derive", 2, derive_nif}
+        {"do_derive", 3, derive_nif}
     };
     ERL_NIF_INIT(eim, nif_funcs, &on_load, NULL, NULL, NULL);
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cmath>
+#include <iostream>
 #include <wand/MagickWand.h>
 #include "erl_nif_compat.h"
 
@@ -9,6 +10,13 @@
 #define EIM_FLOAT_CENTER 4
 #define EIM_FLOAT_BOTTOM 8
 #define EIM_FLOAT_RIGHT  16
+
+typedef enum
+{
+    EIM_FORMAT_JPG,
+    EIM_FORMAT_GIF,
+    EIM_FORMAT_PNG
+} EIM_FORMAT;
 
 #define ThrowWandException(wand) \
 { \
@@ -164,9 +172,41 @@ public:
         height_ = height;
     }
     
-    unsigned char* process(size_t *new_length)
+    unsigned char* process(EIM_FORMAT fmt, size_t *new_length)
     {
-        status=MagickSetImageFormat(magick_wand, "jpg");
+        //long unsigned int number_properties;
+        //char **properties = MagickGetImageProperties(magick_wand, "*", &number_properties);
+        ////void *MagickRelinquishMemory(void *resource)
+        //std::cout << "Profiles: " << std::endl;
+        //if (properties != (char **) NULL)
+        //{
+        //    for (ssize_t i=0; i < (ssize_t)number_properties; i++)
+        //    {
+        //        char *property = MagickGetImageProperty(magick_wand,properties[i]);
+        //        std::cout << properties[i] << std::endl;
+        //        std::cout << property << std::endl;
+        //        properties[i]=(char *) MagickRelinquishMemory(properties[i]);
+        //    }
+        //    properties=(char **) MagickRelinquishMemory(properties);
+        //}
+        
+        //orientation is stored in the data we're about to strip, so correct the image first
+        reorientate();
+        MagickStripImage(magick_wand);
+        
+        switch(fmt)
+        {
+            case EIM_FORMAT_JPG:
+                status=MagickSetImageFormat(magick_wand, "jpg");
+                break;
+            case EIM_FORMAT_GIF:
+                status=MagickSetImageFormat(magick_wand, "gif");
+                break;
+            case EIM_FORMAT_PNG:
+            default:
+                status=MagickSetImageFormat(magick_wand, "png");
+                break;
+        }
         if (status == MagickFalse) {
             throw("An error occured");
         }
@@ -179,11 +219,48 @@ public:
     }
     virtual ~eim_image()
     {
+        MagickClearException(magick_wand);
         magick_wand=DestroyMagickWand(magick_wand);
         MagickWandTerminus();
     }
     
 protected:
+    void reorientate()
+    {
+        PixelWand *background;
+        switch(MagickGetImageOrientation(magick_wand))
+        {
+            //todo: separate out rotate logic
+            case TopRightOrientation:
+                MagickFlopImage(magick_wand);
+            break;
+            case BottomLeftOrientation:
+                MagickFlopImage(magick_wand);
+                //continue to 6
+            case BottomRightOrientation:
+                background = NewPixelWand();
+                MagickRotateImage(magick_wand, background, 180);
+                DestroyPixelWand(background);
+            break;
+            case RightBottomOrientation:
+                MagickFlopImage(magick_wand);
+                //continue to 6
+            case RightTopOrientation:
+                background = NewPixelWand();
+                MagickRotateImage(magick_wand, background, 90);
+                DestroyPixelWand(background);
+            break;
+            case LeftTopOrientation:
+                MagickFlopImage(magick_wand);
+            case LeftBottomOrientation:
+                background = NewPixelWand();
+                MagickRotateImage(magick_wand, background, 270);
+                DestroyPixelWand(background);
+            break;
+            default: break;
+        }
+    }
+    
     const void *data_;
     const size_t size_;
     MagickWand *magick_wand;
