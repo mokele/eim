@@ -19,7 +19,7 @@ Create a thumbnail of the top portion of the image and scale it to a
 box of 50x50 pixels - similar to default Facebook newsfeed profile 
 pictures
 
-    eim:derive(Image, png, {box, 50, 50, center, top})
+    DerivedBinary = eim:derive(Image, png, {box, 50, 50, center, top})
     
 Resize the image to width 180 and maintain aspect ratio on the height 
 and then make sure the height doesn't exceed 350, otherwise crop the 
@@ -27,12 +27,12 @@ bottom out so that it is exactly 350 height. Will result in an image
 with width 180 and a height of =< 350 - similar to Facebook style 
 pictures on the left of profile pages
 
-    eim:derive(Image, png, [{scale, width, 180}, {max, height, 350, top}])
+    DerivedBinary = eim:derive(Image, png, [{scale, width, 180}, {max, height, 350, top}])
    
 User defined cropping the image to a specific region - similar to 
 the result of Facebook profile image thumbnail editing
 
-    eim:derive(Image, png, [{crop, 300, 300, 45, 130}, {scale, height, 50}])
+    DerivedBinary = eim:derive(Image, png, [{crop, 300, 300, 45, 130}, {scale, height, 50}])
 
 # Derivation Reference/API #
 Format can be one of the atoms jpg, gif, or png. You'll need imagemagick installed 
@@ -74,6 +74,12 @@ am image exactly Width, Height in dimensions
 same as above but with variable FloatX and FloatY
 
     {box, Width, Height, FloatX, FloatY}
+
+rotate 90 degress once, twice, or three times - 90, 180, or 270 degress
+
+    {rotate, 1}
+    {rotate, 2}
+    {rotate, 3}
     
 fit inside a box of this size but maintain the aspect ratio
 results in either

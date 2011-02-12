@@ -74,6 +74,7 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
             long x, y;
             long width, height;
             long value;
+            int rotate;
             char dimension[7];
             switch(type[0])
             {
@@ -129,6 +130,20 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
                         return enif_make_badarg(env);
                     }
                     handle->image->fit(width, height);
+                    break;
+                case 'r'://rotate
+                    if(!enif_get_int(env, tuple[1], &rotate))
+                    {
+                        return enif_make_badarg(env);
+                    }
+                    switch(rotate)
+                    {
+                        case 1: handle->image->rotate(EIM_ROTATE_90); break;
+                        case 2: handle->image->rotate(EIM_ROTATE_180); break;
+                        case 3: handle->image->rotate(EIM_ROTATE_270); break;
+                        default:
+                            return enif_make_badarg(env);
+                    };
                     break;
                 case 'b'://box
                     if(!enif_get_long(env, tuple[1], &width) || !enif_get_long(env, tuple[2], &height))

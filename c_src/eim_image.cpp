@@ -38,6 +38,12 @@ typedef enum
     EIM_FORMAT_GIF,
     EIM_FORMAT_PNG
 } EIM_FORMAT;
+typedef enum
+{
+    EIM_ROTATE_90,
+    EIM_ROTATE_180,
+    EIM_ROTATE_270
+} EIM_ROTATE;
 
 #define ThrowWandException(wand) \
 { \
@@ -51,7 +57,8 @@ class eim_image
 public:
     eim_image(const void *data, const size_t size)
         : data_(data),
-          size_(size)
+          size_(size),
+          background_(NULL)
     {
         MagickWandGenesis();
         magick_wand=NewMagickWand();
@@ -193,6 +200,23 @@ public:
         height_ = height;
     }
     
+    void rotate(EIM_ROTATE rotate)
+    {
+        init_background();
+        switch(rotate)
+        {
+            case EIM_ROTATE_90:
+                MagickRotateImage(magick_wand, background_, 90);
+            break;
+            case EIM_ROTATE_180:
+                MagickRotateImage(magick_wand, background_, 180);
+            break;
+            case EIM_ROTATE_270:
+                MagickRotateImage(magick_wand, background_, 270);
+            break;
+        }
+    }
+    
     unsigned char* process(EIM_FORMAT fmt, size_t *new_length)
     {
         //long unsigned int number_properties;
@@ -240,15 +264,25 @@ public:
     }
     virtual ~eim_image()
     {
+        if(background_ != NULL)
+        {
+            DestroyPixelWand(background_);
+        }
         MagickClearException(magick_wand);
         magick_wand=DestroyMagickWand(magick_wand);
         MagickWandTerminus();
     }
     
 protected:
+    void init_background()
+    {
+        if(background_ == NULL)
+        {
+            background_ = NewPixelWand();
+        }
+    }
     void reorientate()
     {
-        PixelWand *background;
         switch(MagickGetImageOrientation(magick_wand))
         {
             //todo: separate out rotate logic
@@ -257,26 +291,20 @@ protected:
             break;
             case BottomLeftOrientation:
                 MagickFlopImage(magick_wand);
-                //continue to 6
+                //continue to BottomRightOrientation
             case BottomRightOrientation:
-                background = NewPixelWand();
-                MagickRotateImage(magick_wand, background, 180);
-                DestroyPixelWand(background);
+                rotate(EIM_ROTATE_180);
             break;
             case RightBottomOrientation:
                 MagickFlopImage(magick_wand);
-                //continue to 6
+                //continue to RightTopOrientation
             case RightTopOrientation:
-                background = NewPixelWand();
-                MagickRotateImage(magick_wand, background, 90);
-                DestroyPixelWand(background);
+                rotate(EIM_ROTATE_90);
             break;
             case LeftTopOrientation:
                 MagickFlopImage(magick_wand);
             case LeftBottomOrientation:
-                background = NewPixelWand();
-                MagickRotateImage(magick_wand, background, 270);
-                DestroyPixelWand(background);
+                rotate(EIM_ROTATE_270);
             break;
             default: break;
         }
@@ -285,6 +313,7 @@ protected:
     const void *data_;
     const size_t size_;
     MagickWand *magick_wand;
+    PixelWand *background_;
     MagickBooleanType status;
     long unsigned int width_,height_;
 };

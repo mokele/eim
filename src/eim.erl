@@ -49,8 +49,10 @@ load(_Bin) ->
                    | {max, dimension(), integer()}
                    | {box, integer(), integer()}
                    | {box, integer(), integer(), h_float(), v_float()}
-                   | {fit, integer(), integer()}.
+                   | {fit, integer(), integer()}
+                   | {rotate, rotate()}.
 -type dimension() :: width | height.
+-type rotate() :: 1 | 2 | 3.
 -type h_float() :: left | center | right.
 -type v_float() :: top | center | bottom.
 -spec derive(reference(), image_format(), deriv()) -> binary() | error.
@@ -68,15 +70,16 @@ do_derive(_Image, _Fmt, _Deriv) ->
 -ifdef(TEST).
 
 all_test() ->
-    error = load(<<>>).
+    error = load(<<>>),
     %% not a test, just for debugging's sake below
     %io:format("Res: ~p~n", [Res])
     %{ok, Image} = load(element(2,file:read_file("../priv/images/09052008181.jpg"))),
-    %ok = file:write_file("../priv/out.jpg", derive(Image, jpg, {box,100,100,left,center})).
+    %ok = file:write_file("../priv/out.jpg", derive(Image, jpg, [{box,100,100,left,center}])),
     %{ok, Riak} = riakc_pb_socket:start_link("127.0.0.1", 8087),
     %Bucket = <<"images">>,
     %Obj1 = riakc_obj:new(Bucket, <<"10.jpg">>, derive(Resource, {fit, 100, 310}), "image/jpg"),
     %ok = riakc_pb_socket:put(Riak, Obj1)
+    ok.
 
 -endif.
 
