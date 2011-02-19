@@ -193,16 +193,17 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
             
         } while(enif_get_list_cell(env, tail, &head, &tail));
         
+        EIM_FORMAT eim_format;
+        switch(fmt[0])
+        {
+            case 'j': eim_format = EIM_FORMAT_JPG; break;
+            case 'g': eim_format = EIM_FORMAT_GIF; break;
+            case 'p': eim_format = EIM_FORMAT_PNG; break;
+            default:
+                return enif_make_badarg(env);
+        }
         try
         {
-            EIM_FORMAT eim_format;
-            switch(fmt[0])
-            {
-                case 'j': eim_format = EIM_FORMAT_JPG; break;
-                case 'g': eim_format = EIM_FORMAT_GIF; break;
-                case 'p':
-                default: eim_format = EIM_FORMAT_PNG; break;
-            }
             new_blob = handle->image->process(eim_format, &new_length);
             enif_alloc_binary_compat(env, new_length, &new_binary);
             memcpy(new_binary.data, new_blob, new_length);
