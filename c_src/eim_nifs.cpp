@@ -21,6 +21,7 @@
 
 #include "eim_nifs.h"
 #include "erl_nif_compat.h"
+#include <wand/MagickWand.h>
 #include <string.h>
 
 ERL_NIF_TERM load_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -207,6 +208,7 @@ ERL_NIF_TERM derive_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
             new_blob = handle->image->process(eim_format, &new_length);
             enif_alloc_binary_compat(env, new_length, &new_binary);
             memcpy(new_binary.data, new_blob, new_length);
+            MagickRelinquishMemory(new_blob);
             return enif_make_binary(env, &new_binary);
         }
         catch(const char* msg)

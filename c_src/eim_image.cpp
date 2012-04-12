@@ -47,7 +47,7 @@ typedef enum
 
 #define ThrowWandException(wand) \
 { \
-  magick_wand=DestroyMagickWand(magick_wand); \
+  magick_wand=DestroyMagickWand(wand); \
   MagickWandTerminus(); \
   throw("An error occured"); \
 }
@@ -61,17 +61,18 @@ public:
           background_(NULL)
     {
         MagickWandGenesis();
-        magick_wand=NewMagickWand();
-        //status=MagickReadImage(magick_wand,"../priv/fibula.jpg");
-        status=MagickReadImageBlob(magick_wand, data_, size_);
+        MagickWand *magick_wand2=NewMagickWand();
+        status=MagickReadImageBlob(magick_wand2, data_, size_);
         if (status == MagickFalse) {
-            throw("An error occured");
+            ThrowWandException(magick_wand2)
         }
-        long int x,y;
-        status=MagickGetImagePage(magick_wand,&width_,&height_,&x,&y);
+        status=MagickGetImagePage(magick_wand2,&width_,&height_,&x_,&y_);
         if (status == MagickFalse) {
-            throw("An error occured");
+            ThrowWandException(magick_wand2)
         }
+        //magick_wand=magick_wand2;
+        magick_wand=MagickCoalesceImages(magick_wand2);
+        magick_wand2=DestroyMagickWand(magick_wand2);
     }
     
     void scale_width(size_t width)
@@ -117,11 +118,14 @@ public:
         while (MagickNextImage(magick_wand) != MagickFalse) {
             if(MagickFalse == MagickCropImage(magick_wand,width,height,x,y))
             {
-                throw("An error occured");
+                ThrowWandException(magick_wand)
             }
         }
+        MagickResetImagePage(magick_wand,(const char *) NULL);
         width_ = width;
         height_ = height;
+        x_ = x;
+        y_ = y;
     }
     
     void fit(size_t width, size_t height)
@@ -196,6 +200,8 @@ public:
             MagickCropImage(magick_wand,width,height,crop_x,crop_y);
         }
         
+        x_ = crop_x;
+        y_ = crop_y;
         width_ = width;
         height_ = height;
     }
@@ -238,6 +244,7 @@ public:
         //orientation is stored in the data we're about to strip, so correct the image first
         reorientate();
         MagickStripImage(magick_wand);
+        MagickSetImagePage(magick_wand, width_, height_, x_, y_);
         
         switch(fmt)
         {
@@ -253,10 +260,11 @@ public:
                 break;
         }
         if (status == MagickFalse) {
-            throw("An error occured");
+            ThrowWandException(magick_wand)
         }
         unsigned char *new_blob;
-        new_blob = MagickGetImageBlob(magick_wand,new_length);
+        MagickResetIterator(magick_wand);
+        new_blob = MagickGetImagesBlob(magick_wand,new_length);
 
         magick_wand=DestroyMagickWand(magick_wand);
         MagickWandTerminus();
@@ -316,5 +324,6 @@ protected:
     PixelWand *background_;
     MagickBooleanType status;
     long unsigned int width_,height_;
+    long int x_, y_;
 };
 
