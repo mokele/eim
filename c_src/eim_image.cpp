@@ -120,8 +120,8 @@ public:
             {
                 ThrowWandException(magick_wand)
             }
+            MagickSetImagePage(magick_wand,width,height,x,y);
         }
-        MagickResetImagePage(magick_wand,(const char *) NULL);
         width_ = width;
         height_ = height;
         x_ = x;
@@ -198,10 +198,11 @@ public:
         while (MagickNextImage(magick_wand) != MagickFalse) {
             MagickResizeImage(magick_wand,new_width,new_height,LanczosFilter,1.0);
             MagickCropImage(magick_wand,width,height,crop_x,crop_y);
+            MagickSetImagePage(magick_wand,width,height,crop_x*-2,crop_y*-2);
         }
         
-        x_ = crop_x;
-        y_ = crop_y;
+        x_ = crop_x*-2;
+        y_ = crop_y*-2;
         width_ = width;
         height_ = height;
     }
@@ -244,7 +245,7 @@ public:
         //orientation is stored in the data we're about to strip, so correct the image first
         reorientate();
         MagickStripImage(magick_wand);
-        MagickSetImagePage(magick_wand, width_, height_, x_, y_);
+        MagickSetPage(magick_wand,width_,height_,x_,y_);
         
         switch(fmt)
         {
